@@ -5,6 +5,7 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 #include <libnet.h>
+#include <thread>
 
 
 using namespace std;
@@ -25,7 +26,7 @@ passwd getInfo() {
         exit(EXIT_FAILURE);
     }
     s = getpwuid_r(uid, &pwd, buf, bufsize, &result);
-    if (result == NULL) {
+    if (!result) {
         exit(EXIT_FAILURE);
     }
     return pwd;
@@ -39,10 +40,10 @@ void getIp(){
     char *addr;
     /* Output! */
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr->sa_family == AF_INET) {
+        if (ifa->ifa_addr->sa_family == AF_INET6) {
             sa = (sockaddr_in *) ifa->ifa_addr;
             addr = inet_ntoa(sa->sin_addr);
-            cout << ifa->ifa_name << ": " << addr << "\n";
+            cout << ifa->ifa_name << ": " << addr << endl;
         }
     }
 
@@ -50,10 +51,9 @@ void getIp(){
 }
 
 
-void createFile(const char * filename) {
+void createFile(const char *filename) {
     int fd;
     write(fd, "test", sizeof("test")-1);
-    cout << "fd: " << fd;
     close(fd);
 }
 
@@ -69,11 +69,13 @@ int main(int argc, char *argv[]) {
     char hostname[10];
     gethostname(hostname, sizeof(hostname));
     getIp();
-    cout << "Hostname:\t\t" << hostname << "\n";
-    cout << "UID:\t\t\t" << userInfo.pw_uid << "\n";
-    cout << "Username:\t\t" << userInfo.pw_name << "\n";
-    cout << "Home Directory:\t\t" << userInfo.pw_dir << "\n";
-    cout << "Shell:\t\t\t" << userInfo.pw_shell << "\n";
-    cout << "Total RAM:\t\t" << si.totalram / 1024 / 1024 << "MB\n";
-    cout << "Free RAM:\t\t" << si.freeram / 1024 / 1024 << "MB\n";
+    cout << "Hostname:\t\t" << hostname << endl;
+    cout << "UID:\t\t\t" << userInfo.pw_uid << endl;
+    cout << "Username:\t\t" << userInfo.pw_name << endl;
+    cout << "Home Directory:\t\t" << userInfo.pw_dir << endl;
+    cout << "Shell:\t\t\t" << userInfo.pw_shell << endl;
+    cout << "Total RAM:\t\t" << si.totalram / 1024 / 1024 << "MB" << endl;
+    cout << "Free  RAM:\t\t" << si.freeram / 1024 / 1024 << "MB" <<  endl;
+    unsigned concurentThreadsSupported = thread::hardware_concurrency();
+    cout << "Threads Supported:\t" << concurentThreadsSupported << endl;
 }
