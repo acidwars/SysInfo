@@ -13,8 +13,8 @@ using namespace std;
 passwd getInfo() {
 
     int s;
-    struct passwd pwd;
-    struct passwd *result;
+    passwd pwd;
+    passwd *result;
     char *buf;
     size_t bufsize;
     uid_t uid = getuid();
@@ -32,6 +32,23 @@ passwd getInfo() {
 
 }
 
+void getIp(){
+    ifaddrs *ifap, *ifa;
+    getifaddrs(&ifap);
+    sockaddr_in *sa;
+    char *addr;
+    /* Output! */
+    for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr->sa_family == AF_INET) {
+            sa = (sockaddr_in *) ifa->ifa_addr;
+            addr = inet_ntoa(sa->sin_addr);
+            cout << ifa->ifa_name << ": " << addr << "\n";
+        }
+    }
+
+
+}
+
 
 void createFile(const char * filename) {
     int fd;
@@ -46,23 +63,12 @@ int main(int argc, char *argv[]) {
     const long day = hour * 24;
     const double megabyte = 1024 * 1024;
     struct sysinfo si;
-    struct ifaddrs *ifap, *ifa;
-    getifaddrs(&ifap);
     sysinfo(&si);
     char info;
     passwd userInfo = getInfo();
     char hostname[10];
     gethostname(hostname, sizeof(hostname));
-    struct sockaddr_in *sa;
-    char *addr;
-    /* Output! */
-    for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr->sa_family == AF_INET) {
-            sa = (struct sockaddr_in *) ifa->ifa_addr;
-            addr = inet_ntoa(sa->sin_addr);
-            cout << ifa->ifa_name << " " << addr << "\n";
-        }
-    }
+    getIp();
     cout << "Hostname:\t\t" << hostname << "\n";
     cout << "UID:\t\t\t" << userInfo.pw_uid << "\n";
     cout << "Username:\t\t" << userInfo.pw_name << "\n";
