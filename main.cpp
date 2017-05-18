@@ -6,6 +6,7 @@
 #include <ifaddrs.h>
 #include <libnet.h>
 #include <thread>
+#include <sys/statvfs.h>
 
 
 using namespace std;
@@ -33,6 +34,8 @@ passwd getInfo() {
 
 }
 
+
+
 void getIp(){
     ifaddrs *ifap, *ifa;
     getifaddrs(&ifap);
@@ -43,12 +46,13 @@ void getIp(){
         if (ifa->ifa_addr->sa_family == AF_INET6) {
             sa = (sockaddr_in *) ifa->ifa_addr;
             addr = inet_ntoa(sa->sin_addr);
-            cout << ifa->ifa_name << ": " << addr << endl;
+            cout << ifa->ifa_name << ":\t" << addr << endl;
         }
     }
 
 
 }
+
 
 
 void createFile(const char *filename) {
@@ -58,6 +62,8 @@ void createFile(const char *filename) {
 }
 
 int main(int argc, char *argv[]) {
+    struct statvfs vfs;
+    statvfs("/dev/sda", &vfs);
     const long minute = 60;
     const long hour = minute * 60;
     const long day = hour * 24;
@@ -76,6 +82,8 @@ int main(int argc, char *argv[]) {
     cout << "Shell:\t\t\t" << userInfo.pw_shell << endl;
     cout << "Total RAM:\t\t" << si.totalram / 1024 / 1024 << "MB" << endl;
     cout << "Free  RAM:\t\t" << si.freeram / 1024 / 1024 << "MB" <<  endl;
-    unsigned concurentThreadsSupported = thread::hardware_concurrency();
-    cout << "Threads Supported:\t" << concurentThreadsSupported << endl;
+    unsigned concurrentThreadsSupported = thread::hardware_concurrency();
+    cout << "Threads Supported:\t" << concurrentThreadsSupported << endl;
+    cout << "Used Disk Space:\t" << vfs.f_bsize * vfs.f_favail << endl;
+
 }
